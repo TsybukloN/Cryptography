@@ -17,6 +17,39 @@
     - **RSA Security**: Relies on the difficulty of factoring the product of two large prime numbers.
     - **Key Generation**: Large primes are used to generate public and private keys.
 
+### 1.3 Prime Number Generation Methods
+
+#### 1.3.1 Mersenne Primes
+Mersenne primes are prime numbers of the form:
+```
+M_n = 2^n - 1
+```
+where `n` itself is a prime number. These numbers are significant in cryptography and number theory due to their unique properties and efficient primality testing methods.
+
+#### Pros:
+- Used in cryptographic applications (e.g., Mersenne prime-based RSA).
+- Efficiently tested using the Lucas-Lehmer test.
+
+#### Cons:
+- Not all numbers of this form are prime.
+- Sparse distribution—there are few known Mersenne primes.
+
+#### 1.3.2 Primorial Primes
+A primorial prime is a prime number of the form:  
+```
+P + 1, where  P = 2 * 3 * 5 * ... * p
+```
+and `p` is the largest prime factor in the product. These numbers are derived by adding 1 to the product of all prime numbers up to a certain prime.
+
+####  Pros:
+- Used in proving the infinitude of primes.
+- Strong theoretical significance in number theory.
+
+#### Cons:
+- Growth rate is extremely fast, making them impractical for cryptography.
+- Not all numbers of this form are prime.
+
+
 ---
 
 ## 2. **Symmetric vs. Asymmetric Key Cryptography**

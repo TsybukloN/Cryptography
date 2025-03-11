@@ -24,5 +24,5 @@ func isPrime(n int) bool {
 
 func main() {
 	message := big.NewInt(12345)
-	rsa_encrypt(message)
+	rsaEncryptDecrypt(message)
 }
