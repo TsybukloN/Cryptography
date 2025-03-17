@@ -83,7 +83,7 @@ and `p` is the largest prime factor in the product. These numbers are derived by
 2. Compute `n = p * q` and `ϕ(n) = (p-1)(q-1)`.
 3. Choose an integer `e` such that `1 < e < ϕ(n)` and `gcd(e, ϕ(n)) = 1`.
 4. Compute `d` as the modular inverse of `e`:
-    - `d ≡ e^(-1) mod ϕ(n)`
+   - `e * d ≡ 1 mod ϕ(n)` -> `d ≡ e^(-1) mod ϕ(n)`.
 5. Public key: `(e, n)`, Private key: `(d, n)`.
 
 ### 3.2 Encryption

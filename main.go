@@ -1,9 +1,5 @@
 package main
 
-import (
-	"math/big"
-)
-
 // Modulo function
 func mod(a, b int) int {
 	return a % b
@@ -22,7 +18,11 @@ func isPrime(n int) bool {
 	return true
 }
 
+/*
+- rsa_demo() function
+
+*/
+
 func main() {
-	message := big.NewInt(12345)
-	rsaEncryptDecrypt(message)
+	rsa_demo()
 }
