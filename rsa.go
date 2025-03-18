@@ -4,51 +4,17 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
-	mathrand "math/rand"
-	"time"
 )
 
 type RSA struct {
 	n, e, d *big.Int
 }
 
-// ----------------- Helper Functions -----------------
-
-// Generate a random prime number of n bits
-func generatePrime(bits int) *big.Int {
-	prime, _ := rand.Prime(rand.Reader, bits)
-	return prime
-}
-
-// Generate a random Mersenne prime number of n bits
-func generateMersennePrime(bits int) *big.Int {
-	mathrand.Seed(time.Now().UnixNano())
-	two := big.NewInt(2)
-
-	n := big.NewInt(int64(mathrand.Intn(100) + 5))
-	for !n.ProbablyPrime(5) {
-		n.Add(n, big.NewInt(1))
-	}
-
-	for {
-		mersenne := new(big.Int).Exp(two, n, nil)
-		mersenne.Sub(mersenne, big.NewInt(1))
-
-		if mersenne.ProbablyPrime(10) && mersenne.BitLen() >= bits {
-			return mersenne
-		}
-
-		n.Add(n, big.NewInt(int64(mathrand.Intn(5)+1)))
-		for !n.ProbablyPrime(5) {
-			n.Add(n, big.NewInt(1))
-		}
-	}
-}
-
-// ----------------- RSA -----------------
-
 func (rsa *RSA) createKeys() {
-	bits := 512
+	// Number of bits for the prime numbers (p, q)
+	// Not secure : 8, 16, 32
+	// Secured : 512, 1024, 2048
+	bits := 32
 
 	// Generate two random prime numbers
 	p, _ := rand.Prime(rand.Reader, bits)
@@ -64,6 +30,8 @@ func (rsa *RSA) createKeys() {
 
 	// Euler's function phi = (p-1) * (q-1)
 	phi := new(big.Int).Mul(new(big.Int).Sub(p, big.NewInt(1)), new(big.Int).Sub(q, big.NewInt(1)))
+
+	fmt.Println(phi)
 
 	rsa.e = big.NewInt(65537) // Common public exponent
 	// Private key d = e^(-1) mod phi
@@ -91,47 +59,48 @@ func (rsa *RSA) decrypt(cipher *big.Int) *big.Int {
 	return decrypted
 }
 
-func (rsa *RSA) creck(cipher *big.Int) *big.Int {
+func (rsa *RSA) hack(cipher *big.Int) *big.Int {
 	// Only can use rsa.e and rsa.n
+	fmt.Println("-----Hacking the message-----")
 
+	// factors := factorize(*rsa.n)
+	//p, q := factors[0], factors[1]
+
+	p := pollardRho(*rsa.n)
+	q := new(big.Int).Div(rsa.n, p)
+
+	fmt.Println("Hacked factors of the (p, q):", p, q)
+
+	hackedPhi := new(big.Int).Mul(new(big.Int).Sub(p, big.NewInt(1)), new(big.Int).Sub(q, big.NewInt(1)))
+	hackedD := new(big.Int).ModInverse(rsa.e, hackedPhi)
+
+	fmt.Println("Hacked Private Key(d):", hackedD)
+	decrypted := new(big.Int).Exp(cipher, hackedD, rsa.n)
+
+	fmt.Println("Hacked Original Message:", decrypted)
+	return decrypted
 }
 
-// Factorize function to find the prime factors of a given number
-func factorize(n *big.Int) []*big.Int {
-	var factors []*big.Int
-	zero := big.NewInt(0)
-	one := big.NewInt(1)
-	two := big.NewInt(2)
+// --- DEMOS ---
 
-	// Divide by 2 until n is odd
-	for new(big.Int).Mod(n, two).Cmp(zero) == 0 {
-		factors = append(factors, new(big.Int).Set(two))
-		n.Div(n, two)
-	}
+func rsaDemo() {
+	message := big.NewInt(12345)
 
-	// Check for odd factors from 3 onwards
-	for i := big.NewInt(3); new(big.Int).Mul(i, i).Cmp(n) <= 0; i.Add(i, two) {
-		for new(big.Int).Mod(n, i).Cmp(zero) == 0 {
-			factors = append(factors, new(big.Int).Set(i))
-			n.Div(n, i)
-		}
-	}
-
-	// If n is a prime number greater than 2
-	if n.Cmp(two) > 0 {
-		factors = append(factors, n)
-	}
-
-	return factors
-}
-
-func rsa_demo() {
-	message := big.NewInt(1234567890)
-
-	my_rsa := RSA{}
-	my_rsa.createKeys()
+	myRsa := RSA{}
+	myRsa.createKeys()
 
 	fmt.Println("Original Message:", message)
-	c := my_rsa.encrypt(message)
-	my_rsa.decrypt(c)
+	c := myRsa.encrypt(message)
+	myRsa.decrypt(c)
+}
+
+func rsaDemoHack() {
+	message := big.NewInt(12345)
+
+	myRsa := RSA{}
+	myRsa.createKeys()
+
+	fmt.Println("Original Message:", message)
+	c := myRsa.encrypt(message)
+	myRsa.hack(c)
 }
